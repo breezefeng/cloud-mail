@@ -1,6 +1,5 @@
 import emailService from './email-service';
 import { emailConst } from '../const/entity-const';
-import BizError from '../error/biz-error';
 
 const resendService = {
 
@@ -40,9 +39,19 @@ const resendService = {
 
 		const emailRow = await emailService.updateEmailStatus(c, params)
 
+		// Resend webhooks are account-wide. The same Resend account can send mail
+		// for applications that do not store their messages in this database, so
+		// an unknown email ID is expected and must still be acknowledged. Returning
+		// a non-2xx response makes Resend retry and eventually disable the endpoint.
 		if (!emailRow) {
-			throw new BizError('更新邮件状态记录失败');
+			console.warn('Ignored Resend event for an unknown email ID', {
+				type: body.type,
+				resendEmailId: params.resendEmailId
+			});
+			return false;
 		}
+
+		return true;
 
 	}
 }

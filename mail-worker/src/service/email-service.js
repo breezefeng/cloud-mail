@@ -314,7 +314,9 @@ const emailService = {
 		emailData.status = useCloudflareEmail ? emailConst.status.DELIVERED : emailConst.status.SENT;
 		emailData.type = emailConst.type.SEND;
 		emailData.userId = userId;
-		emailData.resendEmailId = data?.id;
+		if (data?.id) {
+			emailData.resendEmailId = data.id;
+		}
 
 		const recipient = [];
 
